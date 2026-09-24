@@ -7,7 +7,8 @@ metadata:
     app.kubernetes.io/name: taskapp-migration
     app.kubernetes.io/part-of: taskapp
   annotations:
-    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/sync-wave: "1"
     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
 
 spec:
@@ -20,7 +21,46 @@ spec:
         app.kubernetes.io/part-of: taskapp
 
     spec:
-      restartPolicy: OnFailure
+      restartPolicy: Never
+
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:16.4
+
+          command:
+            - /bin/sh
+            - -c
+            - |
+              until pg_isready -h "$POSTGRES_HOST" -p "$POSTGRES_PORT" -U "$POSTGRES_USER" -d "$POSTGRES_DB"; do
+                echo "Waiting for PostgreSQL..."
+                sleep 2
+              done
+              echo "PostgreSQL is ready."
+
+          env:
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: taskapp-config
+                  key: POSTGRES_HOST
+
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: taskapp-config
+                  key: POSTGRES_PORT
+
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: taskapp-config
+                  key: POSTGRES_DB
+
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: taskapp-secret
+                  key: POSTGRES_USER
 
       containers:
         - name: migration
@@ -61,11 +101,3 @@ spec:
                 secretKeyRef:
                   name: taskapp-secret
                   key: POSTGRES_PASSWORD
-
-          resources:
-            requests:
-              cpu: "100m"
-              memory: "128Mi"
-            limits:
-              cpu: "500m"
-              memory: "256Mi"

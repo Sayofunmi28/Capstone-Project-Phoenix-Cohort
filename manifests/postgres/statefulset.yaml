@@ -6,6 +6,8 @@ metadata:
   labels:
     app.kubernetes.io/name: postgres
     app.kubernetes.io/part-of: taskapp
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   serviceName: postgres
   replicas: 1
