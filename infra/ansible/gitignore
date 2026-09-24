@@ -1,0 +1,15 @@
+# Ansible secrets
+ansible/secrets/
+ansible/vault-password-file
+ansible/group_vars/*/vault.yml
+
+# SSH private keys
+*.pem
+*.key
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+
+# Generated Kubernetes credentials
+ansible/kubeconfig/

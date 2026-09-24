@@ -1,0 +1,35 @@
+- name: Install required packages
+  become: true
+  ansible.builtin.apt:
+    name:
+      - curl
+    state: present
+    update_cache: true
+  when: ansible_os_family == "Debian"
+
+- name: Wait for k3s API server
+  become: true
+  ansible.builtin.wait_for:
+    host: "{{ k3s_server_ip }}"
+    port: "{{ k3s_api_port }}"
+    timeout: 120
+
+- name: Install k3s agent
+  become: true
+  ansible.builtin.shell:
+    cmd: |
+      curl -sfL {{ k3s_install_url }} | \
+        INSTALL_K3S_VERSION="{{ k3s_version }}" \
+        K3S_URL="https://{{ k3s_server_ip }}:{{ k3s_api_port }}" \
+        K3S_TOKEN="{{ k3s_node_token }}" \
+        sh -
+    creates: /etc/systemd/system/k3s-agent.service
+  no_log: true
+
+- name: Enable and start k3s agent
+  become: true
+  ansible.builtin.systemd:
+    name: k3s-agent
+    enabled: true
+    state: started
+    daemon_reload: true

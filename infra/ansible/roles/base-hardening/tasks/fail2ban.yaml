@@ -1,0 +1,13 @@
+- name: Install fail2ban
+  become: true
+  ansible.builtin.apt:
+    name: fail2ban
+    state: present
+    update_cache: true
+
+- name: Enable and start fail2ban
+  become: true
+  ansible.builtin.systemd:
+    name: fail2ban
+    enabled: true
+    state: started

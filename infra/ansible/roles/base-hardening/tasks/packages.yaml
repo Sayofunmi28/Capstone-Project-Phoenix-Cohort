@@ -1,0 +1,14 @@
+- name: Install base packages
+  become: true
+  ansible.builtin.apt:
+    name:
+      - curl
+      - ca-certificates
+      - gnupg
+      - apt-transport-https
+      - iptables
+      - iproute2
+      - socat
+      - conntrack
+    state: present
+    update_cache: true

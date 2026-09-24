@@ -1,0 +1,16 @@
+#!/bin/bash
+set -euxo pipefail
+
+apt-get update -y
+apt-get install -y curl
+
+curl -sfL https://get.k3s.io | \
+  INSTALL_K3S_VERSION='${k3s_version}' \
+  K3S_TOKEN='${k3s_token}' \
+  sh -s - server \
+  --cluster-init \
+  --write-kubeconfig-mode 644 \
+  --node-name "${cluster_name}-server"
+
+systemctl enable k3s
+systemctl restart k3s

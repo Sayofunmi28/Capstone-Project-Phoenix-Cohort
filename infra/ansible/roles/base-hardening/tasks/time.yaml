@@ -1,0 +1,13 @@
+- name: Install chrony
+  become: true
+  ansible.builtin.apt:
+    name: chrony
+    state: present
+    update_cache: true
+
+- name: Enable chrony
+  become: true
+  ansible.builtin.systemd:
+    name: chrony
+    enabled: true
+    state: started

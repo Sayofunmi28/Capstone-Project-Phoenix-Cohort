@@ -1,0 +1,65 @@
+# ============================================================
+# Base system
+# ============================================================
+
+admin_user: ansible
+
+admin_ssh_public_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMr8qStQh/uxyCBMI53EMTs8M5HgRCvrzsMYg+zJpazK oseunayofunmi@gmail.com"
+
+# ============================================================
+# SSH hardening
+# ============================================================
+
+ssh_port: 22
+ssh_permit_root_login: "no"
+ssh_password_authentication: "no"
+ssh_pubkey_authentication: "yes"
+
+# ============================================================
+# Hostname
+# ============================================================
+
+set_hostname: true
+
+# ============================================================
+# Firewall
+# ============================================================
+
+firewall_enabled: true
+
+# Kubernetes API server
+k3s_server_port: 6443
+
+# K3s / Flannel VXLAN
+k3s_flannel_port: 8472
+
+# Kubelet
+k3s_kubelet_port: 10250
+
+# ============================================================
+# Fail2ban
+# ============================================================
+
+fail2ban_enabled: true
+fail2ban_bantime: "1h"
+fail2ban_findtime: "10m"
+fail2ban_maxretry: 5
+fail2ban_backend: "systemd"
+
+# ============================================================
+# Kubernetes prerequisites
+# ============================================================
+
+disable_swap: true
+configure_kernel_modules: true
+configure_sysctl: true
+configure_time_sync: true
+
+kubernetes_kernel_modules:
+  - overlay
+  - br_netfilter
+
+kubernetes_sysctl:
+  net.bridge.bridge-nf-call-iptables: 1
+  net.bridge.bridge-nf-call-ip6tables: 1
+  net.ipv4.ip_forward: 1

@@ -1,0 +1,102 @@
+- name: Install UFW
+  become: true
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+    update_cache: true
+
+# ------------------------------------------------------------
+# Default policies
+# ------------------------------------------------------------
+
+- name: Set UFW incoming policy to deny
+  become: true
+  community.general.ufw:
+    direction: incoming
+    policy: deny
+
+- name: Set UFW outgoing policy to allow
+  become: true
+  community.general.ufw:
+    direction: outgoing
+    policy: allow
+
+# ------------------------------------------------------------
+# SSH
+# ------------------------------------------------------------
+
+- name: Allow SSH
+  become: true
+  community.general.ufw:
+    rule: allow
+    port: "{{ ssh_port }}"
+    proto: tcp
+
+# ------------------------------------------------------------
+# Kubernetes API
+# Only the server needs to expose 6443.
+# ------------------------------------------------------------
+
+- name: Allow Kubernetes API
+  become: true
+  community.general.ufw:
+    rule: allow
+    port: "{{ k3s_server_port }}"
+    proto: tcp
+  when: "'server' in group_names"
+
+# ------------------------------------------------------------
+# K3s / Flannel VXLAN
+# Required between cluster nodes.
+# ------------------------------------------------------------
+
+- name: Allow Flannel VXLAN from cluster nodes
+  become: true
+  community.general.ufw:
+    rule: allow
+    port: "{{ k3s_flannel_port }}"
+    proto: udp
+    src: "{{ hostvars[item].ansible_host }}"
+  loop: "{{ groups['k3s_cluster'] }}"
+  when:
+    - hostvars[item].ansible_host is defined
+    - hostvars[item].inventory_hostname != inventory_hostname
+
+# ------------------------------------------------------------
+# Kubelet
+# Required for node-to-node Kubernetes communication.
+# ------------------------------------------------------------
+
+- name: Allow kubelet communication from cluster nodes
+  become: true
+  community.general.ufw:
+    rule: allow
+    port: "{{ k3s_kubelet_port }}"
+    proto: tcp
+    src: "{{ hostvars[item].ansible_host }}"
+  loop: "{{ groups['k3s_cluster'] }}"
+  when:
+    - hostvars[item].ansible_host is defined
+    - hostvars[item].inventory_hostname != inventory_hostname
+
+# ------------------------------------------------------------
+# Enable UFW forwarding
+# ------------------------------------------------------------
+
+- name: Configure UFW forwarding policy
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/default/ufw
+    regexp: '^DEFAULT_FORWARD_POLICY='
+    line: 'DEFAULT_FORWARD_POLICY="ACCEPT"'
+    state: present
+  notify: Reload UFW
+
+# ------------------------------------------------------------
+# Enable firewall
+# ------------------------------------------------------------
+
+- name: Enable UFW
+  become: true
+  community.general.ufw:
+    state: enabled

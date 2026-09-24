@@ -5,6 +5,9 @@
 *.tfvars
 !*.tfvars.example
 crash.log
+*.tfplan
+tfplan
+tfplan.json
 
 # kubeconfig & cluster joins
 kubeconfig
@@ -19,6 +22,7 @@ node-token
 !.env.example
 *secret*.yaml
 !*secret*.example.yaml
+!manifests/taskapp-sealedsecret.yaml
 *.pem
 *.key
 id_rsa*

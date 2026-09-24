@@ -1,0 +1,36 @@
+- name: Install required packages
+  ansible.builtin.import_tasks: packages.yml
+
+- name: Configure administrative user
+  ansible.builtin.import_tasks: users.yml
+
+- name: Configure hostname
+  ansible.builtin.import_tasks: hostname.yml
+  when: set_hostname
+
+- name: Configure SSH hardening
+  ansible.builtin.import_tasks: ssh.yml
+
+- name: Disable swap
+  ansible.builtin.import_tasks: swap.yml
+  when: disable_swap
+
+- name: Configure kernel modules
+  ansible.builtin.import_tasks: kernel.yml
+  when: configure_kernel_modules
+
+- name: Configure Kubernetes sysctl
+  ansible.builtin.import_tasks: sysctl.yml
+  when: configure_sysctl
+
+- name: Configure time synchronization
+  ansible.builtin.import_tasks: time.yml
+  when: configure_time_sync
+
+- name: Configure firewall
+  ansible.builtin.import_tasks: firewall.yml
+  when: firewall_enabled
+
+- name: Configure fail2ban
+  ansible.builtin.import_tasks: fail2ban.yml
+  when: fail2ban_enabled
