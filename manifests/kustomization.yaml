@@ -16,5 +16,7 @@ resources:
   - frontend/deployment.yaml
   - autoscaling/backend-hpa.yaml
   - autoscaling/frontend-hpa.yaml
+  - availability/backend-pdb.yaml
+  - availability/frontend-pdb.yaml
   - ingress/cluster-issuer.yaml
   - ingress/ingress.yaml
