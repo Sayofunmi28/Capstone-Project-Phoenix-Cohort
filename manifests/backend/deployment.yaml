@@ -26,7 +26,7 @@ spec:
         app.kubernetes.io/name: backend
         app.kubernetes.io/part-of: taskapp
       annotations:
-        rollout.taskapp.dev/test: "2026-09-28"
+        rollout.taskapp.dev/test: "2026-09-29"
 
     spec:
       terminationGracePeriodSeconds: 30
